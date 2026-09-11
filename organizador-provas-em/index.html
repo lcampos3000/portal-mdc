@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Organizador de Aplicação de Provas — Ensino Médio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side no-print">
+    <div class="brand"><b>Organizador de Provas</b><span>Ensino Médio • CSA Contagem</span></div>
+    <div class="nav">
+      <button class="active" data-view="dashboardView">Visão geral</button>
+      <button data-view="calendarView">Calendário</button>
+      <button data-view="generatorView">Gerar distribuição</button>
+      <button data-view="mapsView">Mapas de sala</button>
+      <button data-view="publicView">Lista de divulgação</button>
+      <button data-view="dataView">Dados e backup</button>
+    </div>
+    <div class="privacy">Os dados ficam no navegador deste dispositivo. O arquivo não envia nomes ou notas para servidor externo.</div>
+  </aside>
+  <main class="main">
+    <header class="top no-print">
+      <h1>Organizador de Aplicação de Provas — Ensino Médio</h1>
+      <div class="status" id="saveStatus">Ferramenta pública • dados ficam apenas neste navegador</div>
+    </header>
+    <div class="content">
+      <section id="dashboardView" class="view active">
+        <div class="hero">
+          <h2>Misturar sem perder o equilíbrio.</h2>
+          <p>Distribuição por desempenho, turma de origem e capacidade física de sala. A posição das carteiras também é organizada para reduzir vizinhanças da mesma turma de origem. <b>Esta versão pública não contém nomes nem notas:</b> cada usuário importa as planilhas MDC localmente no próprio navegador.</p>
+        </div>
+        <div class="grid" id="kpis"></div>
+        <div class="grid" style="margin-top:14px;grid-template-columns:1.4fr 1fr">
+          <div class="card"><h3>Próximas aplicações</h3><div id="nextExams"></div></div>
+          <div class="card"><h3>Critério operacional</h3><p><b>1ª série:</b> Física + Literatura.<br><b>2ª série:</b> História + Literatura.</p><p style="font-size:12px;color:var(--muted)">Os critérios podem ser alterados para qualquer aplicação futura.</p></div>
+        </div>
+      </section>
+
+      <section id="calendarView" class="view">
+        <div class="card no-print">
+          <div class="row">
+            <div class="field"><label>Série</label><select id="calendarSeries"><option>Todas</option><option>1ª série</option><option>2ª série</option><option>3ª série</option></select></div>
+            <div class="field"><label>Período</label><select id="calendarPeriod"><option value="all">Todo o semestre</option><option value="future">A partir de hoje</option></select></div>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Data</th><th>Série</th><th>Horário</th><th>Prova / instrumento</th><th>Tipo</th><th class="no-print">Ação</th></tr></thead><tbody id="calendarBody"></tbody></table></div>
+      </section>
+
+      <section id="generatorView" class="view">
+        <div class="card">
+          <h3>1. Defina a aplicação</h3>
+          <div class="row">
+            <div class="field"><label>Série</label><select id="genSeries"><option>1ª série</option><option>2ª série</option></select></div>
+            <div class="field" style="flex:2"><label>Aplicação</label><select id="genExam"></select></div>
+            <div class="field"><label>Semente de embaralhamento</label><input id="genSeed" type="text" value="20260915"></div>
+          </div>
+          <div class="criteria" style="margin-top:12px">
+            <div class="field"><label>Critério de desempenho 1</label><select id="criterion1"></select></div>
+            <div class="field"><label>Critério de desempenho 2</label><select id="criterion2"></select></div>
+          </div>
+          <div class="notice">A ferramenta cria faixas relativas de desempenho para equilibrar cada sala e também controla a proporção de estudantes de cada turma de origem. Nenhuma faixa de desempenho aparece no mapa impresso ou na lista pública.</div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>2. Configure as salas</h3>
+          <div class="row">
+            <div class="field"><label>Número de salas</label><input id="roomCount" type="number" min="2" max="8" value="4"></div>
+            <button class="btn soft" id="resetRoomsBtn">Redimensionar automaticamente</button>
+          </div>
+          <div class="room-configs" id="roomConfigs"></div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>3. Gere e audite</h3>
+          <div class="row">
+            <button class="btn primary" id="generateBtn">Gerar nova distribuição equilibrada</button>
+            <button class="btn ghost" id="goMapsBtn">Abrir mapas de sala</button>
+          </div>
+          <div id="generationAudit"></div>
+        </div>
+      </section>
+
+      <section id="mapsView" class="view">
+        <div class="card">
+          <div class="maps-toolbar no-print">
+            <button class="btn primary" id="shuffleSeatsBtn">Reorganizar apenas as carteiras</button>
+            <button class="btn ghost" id="printMapsBtn">Imprimir / salvar PDF</button>
+            <button class="btn ghost" id="downloadMapHtmlBtn">Baixar cópia dos mapas (.html)</button>
+            <button class="btn ghost" id="exportCsvBtn">Baixar distribuição (.csv)</button>
+            <label class="btn ghost" style="cursor:pointer"><input id="showOriginPrint" type="checkbox" style="margin-right:6px"> Mostrar turma de origem no impresso</label>
+          </div>
+          <div class="notice no-print">Para ajustes manuais, clique em uma carteira e depois em outra para trocar os estudantes. Também funciona entre salas. A ferramenta recalcula o equilíbrio após cada troca.</div>
+          <div class="balance-grid no-print" id="balanceGrid"></div>
+          <div class="maps-grid" id="mapsGrid"></div>
+        </div>
+      </section>
+
+      <section id="publicView" class="view">
+        <div class="card public-mode">
+          <div class="public-head">
+            <div><div class="public-title">Distribuição de salas</div><div id="publicSubtitle" style="color:var(--muted);margin-top:3px"></div></div>
+            <div class="row no-print">
+              <input id="publicSearch" placeholder="Buscar estudante..." style="border:1px solid #cfd7df;border-radius:9px;padding:9px 10px">
+              <button class="btn primary" id="fullscreenBtn">Tela cheia</button>
+              <button class="btn ghost" id="printPublicBtn">Imprimir / PDF</button>
+            </div>
+          </div>
+          <div class="public-list" id="publicList"></div>
+        </div>
+      </section>
+
+      <section id="dataView" class="view">
+        <div class="card">
+          <h3>Atualizar MDC</h3>
+          <div class="drop">
+            <p><b>Importe as planilhas MDC exportadas do Campus.</b></p>
+            <p style="font-size:12px;color:var(--muted)">Selecione uma ou várias planilhas .xlsx. O programa identifica a série/turma pelo nome do arquivo ou pelo código M1CAM/M2CAM presente no export.</p>
+            <input id="mdcFiles" type="file" accept=".xlsx" multiple>
+            <div style="margin-top:12px"><button class="btn primary" id="importMdcBtn">Importar e substituir turmas correspondentes</button></div>
+          </div>
+          <div class="dataset-row" id="datasetPills"></div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>Backup e portabilidade</h3>
+          <div class="row">
+            <button class="btn ghost" id="backupBtn">Baixar backup (.json)</button>
+            <label class="btn ghost" style="cursor:pointer">Restaurar backup <input id="restoreFile" class="hidden" type="file" accept=".json"></label>
+            <button class="btn red" id="clearLocalBtn">Apagar ajustes locais e restaurar base original</button>
+          </div>
+          <p style="font-size:12px;color:var(--muted)">O backup guarda base importada, salas, mapas e última configuração. Use-o para levar a ferramenta para outro computador sem refazer o trabalho.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="core.js"></script>
+<script src="generator.js"></script>
+<script src="maps-data.js"></script>
+</body></html>
